@@ -6,16 +6,22 @@ import "./style.css";
 export default () => {
   const [value, setValue] = useState("https://example.com");
   const [svg, setSvg] = useState("");
-  useEffect(() => {
-    (async () => {
-      if (value === "") {
-        return;
-      }
-      const url = await generateQRCodeAsync(value, {
-        type: "svg"
-      });
+
+  const setQRSvg = async (value: string) => {
+    if (value === "") {
+      return;
+    }
+
+    try {
+      const url = await generateQRCodeAsync(value, { type: "svg" });
       setSvg(url);
-    })();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    setQRSvg(value);
   });
 
   return (
@@ -37,17 +43,7 @@ export default () => {
                 value={value}
                 onChange={async e => {
                   setValue(e.target.value);
-                  if (e.target.value === "") {
-                    return;
-                  }
-                  try {
-                    const url = await generateQRCodeAsync(e.target.value, {
-                      type: "svg"
-                    });
-                    setSvg(url);
-                  } catch (e) {
-                    console.error(e);
-                  }
+                  await setQRSvg(e.target.value);
                 }}
               />
             </div>
